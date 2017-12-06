@@ -1,0 +1,149 @@
+<robot
+  name="turtlebot_mini">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="0.0011869 -0.007673 0.12049"
+        rpy="0 0 0" />
+      <mass
+        value="1.0554" />
+      <inertia
+        ixx="0.0052103"
+        ixy="1.2067E-05"
+        ixz="2.6478E-06"
+        iyy="0.0048109"
+        iyz="-0.00060988"
+        izz="0.0016014" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://turtlebot_mini/meshes/base_link.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.25098 0.25098 0.25098 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://turtlebot_mini/meshes/base_link.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="wheel_left_link">
+    <inertial>
+      <origin
+        xyz="0.0069553 1.1547E-06 -2.619E-07"
+        rpy="0 0 0" />
+      <mass
+        value="0.012859" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://turtlebot_mini/meshes/wheel_left_link.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://turtlebot_mini/meshes/wheel_left_link.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheel_left_joint"
+    type="continuous">
+    <origin
+      xyz="0.063388 0 0.035"
+      rpy="1.5708 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="wheel_left_link" />
+    <axis
+      xyz="1 0 0" />
+  </joint>
+  <link
+    name="wheel_right_link">
+    <inertial>
+      <origin
+        xyz="0.0069553 1.1547E-06 -2.619E-07"
+        rpy="0 0 0" />
+      <mass
+        value="0.012859" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://turtlebot_mini/meshes/wheel_right_link.stl" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://turtlebot_mini/meshes/wheel_right_link.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheel_right_joint"
+    type="continuous">
+    <origin
+      xyz="-0.063388 0 0.035"
+      rpy="2.7498 0 3.1416" />
+    <parent
+      link="base_link" />
+    <child
+      link="wheel_right_link" />
+    <axis
+      xyz="-1 0 0" />
+  </joint>
+</robot>
