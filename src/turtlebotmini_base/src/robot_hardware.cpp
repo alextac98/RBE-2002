@@ -1,4 +1,4 @@
-#include robot_base/robot_hardware.h
+﻿#include "turtlebotmini_base/robot_hardware.h"
 
 extern "C"
 {
@@ -15,7 +15,11 @@ RobotHardware::RobotHardware(){
       ROS_INFO("Error: failed to initialize robotics cape drivers");
       return -1;
   }
+
+  //Set up Robotic Cape
   rc_enable_motors();
+  rc_set_encoder_pos(LEFTENCODER, 0);
+  rc_set_encoder_pos(RIGHTENCODER, 0);
 
   //connect joint state interface and register handle
   hardware_interface::JointStateHandle lWheel_stateHandle("wheel_left", &pos[LEFTWHEEL], &vel[LEFTWHEEL], &eff[LEFTWHEEL]);
@@ -34,11 +38,44 @@ RobotHardware::RobotHardware(){
   //register interfaces
   registerInterface(&joint_state_interface);
   registerInterface(&velocity_joint_interface);
-
-
-
 }
 
-RobotHardware::writeToHardware(){
+void RobotHardware::writeToHardware(ros::Duration timeDiff){
+    //Make sure you run updateJoints() before running writeToHardware
+    //Calculate the PID output so that the motor output can be set as close to eachother as possible
+    volatile float leftPID = calculatePID(timeDiff, vel[LEFT], vel_cmd[LEFT]);
+    volatile float rightPID = calculatePID(timeDiff, vel[RIGHT], vel_cmd[RIGHT]);
 
+    //Set motor output
+    rc_set_motor(LEFTMOTOR, leftPID);
+    rc_set_motor(RIGHTMOTOR, rightPID);
+}
+
+void RobotHardware::updateJoints(ros::Duration timeDiff){
+     //Update Velocity
+     vel[LEFT] = (rc_get_encoder_pos(LEFTENCODER) - lastLeftEncoderPos)/timeDiff.toSec();
+     vel[RIGHT] = (rc_get_encoder_pos(RIGHTENCODER) - lastRightEncoderPos)/timeDiff.toSec();
+
+     //Update Position
+     //pos[LEFT] = rc_get_encoder_pos(LEFTENCODER);
+     //pos[RIGHT] = rc_get_encoder_pos(RIGHTENCODER);
+}
+
+float RobotHardware::calculatePID(ros::Duration timeChange, float input , float setpoint) {
+
+    volatile float timeDiff = timeChange.toSec();
+
+    volatile float error = setpoint - input;
+
+    //Calculate P
+    P = error * kP;
+
+    //Calculate I
+    I = I + (error * kI * timeDiff);
+
+    //Calculate D
+    D = (lastInput - input) * kD / timeDiff;
+    lastInput = input;
+
+    return P + I + D;
 }
