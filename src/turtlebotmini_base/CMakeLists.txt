@@ -8,6 +8,7 @@ project(turtlebotmini_base)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  dynamic_reconfigure
   roscpp
   rospy
   std_msgs
@@ -88,10 +89,9 @@ find_package(catkin REQUIRED COMPONENTS
 ##     and list every .cfg file to be processed
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
+ generate_dynamic_reconfigure_options(
+   cfg/turtlebotmini.cfg
+ )
 
 ###################################
 ## catkin specific configuration ##
@@ -105,7 +105,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES turtlebotmini_base
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+#  CATKIN_DEPENDS dynamic_reconfigure roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
 
@@ -149,6 +149,8 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+
+add_dependencies(turtlebotmini_cfg ${PROJECT_NAME}_gencfg)
 
 #############
 ## Install ##

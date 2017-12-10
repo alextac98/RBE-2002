@@ -20,32 +20,38 @@
 #define RIGHTMOTOR 4
 
 //PID Constants
-const float kP = 0;
-const float kI = 0;
-const float kD = 0;
+float kP = 0;
+float kI = 0;
+float kD = 0;
 
 float P = 0;
 float I = 0;
 float D = 0;
 float lastInput = 0;
 
-class RobotHardware:
+class TurtleBotMini_Hardware:
     public hardware_interface::RobotHW
 {
 
 public:
-
-  RobotHardware();
+  TurtleBotMini_Hardware();
   void updateJoints();
   void writeToHardware();
 
+  void changekP(int kp);
+  void changekI(int ki);
+  void changekD(int kd);
 
 private:
 
   //Robot Constants
-  float wheelDiameter; //not needed i think
-  float maxSpeed = 15;      //in rad/s
-  float maxAccelleration; //in rad/s^2
+  const float wheelDiameter = 0.0075; //in meters
+  const float maxSpeed = 15;      //in rad/s
+  const float maxAccelleration; //in rad/s^2
+
+  //Robot Variables
+  float leftPID;
+  float rightPID;
 
   //Private Robot Methods
   float calculatePID(ros::Duration timeChange, float input , float setpoint);

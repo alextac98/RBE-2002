@@ -10,13 +10,13 @@ extern "C"
 }
 
 
-RobotHardware::RobotHardware(){
+TurtleBotMini_Hardware::TurtleBotMini_Hardware(){
+
+  //Set up Robotics Cape
   if (rc_initialize() < 0){
       ROS_INFO("Error: failed to initialize robotics cape drivers");
       return -1;
   }
-
-  //Set up Robotic Cape
   rc_enable_motors();
   rc_set_encoder_pos(LEFTENCODER, 0);
   rc_set_encoder_pos(RIGHTENCODER, 0);
@@ -40,19 +40,21 @@ RobotHardware::RobotHardware(){
   registerInterface(&velocity_joint_interface);
 }
 
-void RobotHardware::writeToHardware(ros::Duration timeDiff){
+void TurtleBotMini_Hardware::writeToHardware(ros::Duration timeDiff){
+
     //Make sure you run updateJoints() before running writeToHardware
     //Calculate the PID output so that the motor output can be set as close to eachother as possible
-    volatile float leftPID = calculatePID(timeDiff, vel[LEFT], vel_cmd[LEFT]);
-    volatile float rightPID = calculatePID(timeDiff, vel[RIGHT], vel_cmd[RIGHT]);
+    leftPID = calculatePID(timeDiff, vel[LEFT], vel_cmd[LEFT]);
+    rightPID = calculatePID(timeDiff, vel[RIGHT], vel_cmd[RIGHT]);
 
     //Set motor output
     rc_set_motor(LEFTMOTOR, leftPID);
     rc_set_motor(RIGHTMOTOR, rightPID);
 }
 
-void RobotHardware::updateJoints(ros::Duration timeDiff){
-     //Update Velocity
+void TurtleBotMini_Hardware::updateJoints(ros::Duration timeDiff){
+
+    //Update Velocity
      vel[LEFT] = (rc_get_encoder_pos(LEFTENCODER) - lastLeftEncoderPos)/timeDiff.toSec();
      vel[RIGHT] = (rc_get_encoder_pos(RIGHTENCODER) - lastRightEncoderPos)/timeDiff.toSec();
 
@@ -61,7 +63,7 @@ void RobotHardware::updateJoints(ros::Duration timeDiff){
      //pos[RIGHT] = rc_get_encoder_pos(RIGHTENCODER);
 }
 
-float RobotHardware::calculatePID(ros::Duration timeChange, float input , float setpoint) {
+float TurtleBotMini_Hardware::calculatePID(ros::Duration timeChange, float input , float setpoint) {
 
     volatile float timeDiff = timeChange.toSec();
 
@@ -78,4 +80,16 @@ float RobotHardware::calculatePID(ros::Duration timeChange, float input , float 
     lastInput = input;
 
     return P + I + D;
+}
+
+void changekP(int kp){
+    kP = kp;
+}
+
+void changekI(int ki){
+    kI = ki;
+}
+
+void changekD(int kd){
+    kD = kd;
 }
