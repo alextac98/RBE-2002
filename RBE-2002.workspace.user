@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.4.1, 2017-11-27T11:16:27. -->
+<!-- Written by QtCreator 4.4.1, 2017-12-11T00:41:50. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -107,7 +107,7 @@
      <value type="QString">PATH=/opt/ros/kinetic/bin:/home/alex/bin:/home/alex/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin</value>
      <value type="QString">PKG_CONFIG_PATH=/home/alex/RBE-2002/devel/lib/pkgconfig:/opt/ros/kinetic/lib/pkgconfig</value>
      <value type="QString">PWD=/home/alex/RBE-2002</value>
-     <value type="QString">PYTHONPATH=/opt/ros/kinetic/lib/python2.7/dist-packages</value>
+     <value type="QString">PYTHONPATH=/home/alex/RBE-2002/devel/lib/python2.7/dist-packages:/opt/ros/kinetic/lib/python2.7/dist-packages</value>
      <value type="QString">QTDIR</value>
      <value type="QString">ROSLISP_PACKAGE_DIRECTORIES=/home/alex/RBE-2002/devel/share/common-lisp</value>
      <value type="QString">ROS_DISTRO=kinetic</value>
