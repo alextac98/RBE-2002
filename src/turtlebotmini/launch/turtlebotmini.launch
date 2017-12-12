@@ -1,0 +1,4 @@
+<launch>
+    <node name="beaglebot_blue" pkg="turtlebotmini" type="beaglebot_blue">
+    </node>
+</launch>
