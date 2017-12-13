@@ -1,4 +1,35 @@
 <launch>
     <node name="beaglebot_blue" pkg="turtlebotmini" type="beaglebot_blue">
     </node>
+
+    <rosparam param="ticks_meter">6548</rosparam>
+
+    <node pkg="turtlebotmini" type="pid_velocity.py" name="lpid_velocity">
+        <remap from="wheel" to="lwheel"/>
+        <remap from="motor_cmd" to="lmotor_cmd"/>
+        <remap from="wheel_vtarget" to="lwheel_vtarget"/>
+        <remap from="wheel_vel" to="lwheel_vel"/>
+        <rosparam param="Kp">0.9</rosparam>
+        <rosparam param="Ki">0.33</rosparam>
+        <rosparam param="Kd">0.01</rosparam>
+        <rosparam param="out_min">-1</rosparam>
+        <rosparam param="out_max">1</rosparam>
+        <rosparam param="rate">18</rosparam>
+        <rosparam param="timeout_ticks">2</rosparam>
+        <rosparam param="rolling_pts">5</rosparam>
+    </node>
+    <node pkg="turtlebotmini" type="pid_velocity.py" name="rpid_velocity">
+        <remap from="wheel" to="rwheel"/>
+        <remap from="motor_cmd" to="rmotor_cmd"/>
+        <remap from="wheel_vtarget" to="rwheel_vtarget"/>
+        <remap from="wheel_vel" to="rwheel_vel"/>
+        <rosparam param="Kp">0.90.</rosparam>
+        <rosparam param="Ki">0.33</rosparam>
+        <rosparam param="Kd">0.01</rosparam>
+        <rosparam param="out_min">-1</rosparam>
+        <rosparam param="out_max">1</rosparam>
+        <rosparam param="rate">18</rosparam>
+        <rosparam param="timeout_ticks">2</rosparam>
+        <rosparam param="rolling_pts">5</rosparam>
+    </node>
 </launch>

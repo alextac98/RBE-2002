@@ -32,8 +32,8 @@ int main(int argc, char **argv)
   rc_enable_servo_power_rail();
 
   //ROS Publishers and Subscribers
-  lMotorVel_sub = nh.subscribe("lwheel_vtarget", 1, setLeftWheel_callback);
-  rMotorVel_sub = nh.subscribe("rwheel_vtarget", 1, setRightWheel_callback);
+  lMotor_sub = nh.subscribe("lmotor_cmd", 1, setLeftWheel_callback);
+  rMotor_sub = nh.subscribe("rmotor_cmd", 1, setRightWheel_callback);
 
   lWheelPos_pub = nh.advertise<std_msgs::Int16>("lwheel", 1);
   rWheelPos_pub = nh.advertise<std_msgs::Int16>("rwheel", 1);
@@ -41,28 +41,15 @@ int main(int argc, char **argv)
   fan_sub = nh.subscribe("fanSpeed", 1, setFan_callback);
   servo_sub = nh.subscribe("fanAngle", 1, setServo_callback);
 
-  lastTime = ros::Time::now();
-
   ros::Rate loop_rate(50);
 
   while (ros::ok())
   {
     leftEncoder.data = rc_get_encoder_pos(LEFTENCODER);
-    rightEncoder.data = rc_get_encoder_pos(RIGHTENCODER);
+    rightEncoder.data = -rc_get_encoder_pos(RIGHTENCODER);
 
     lWheelPos_pub.publish(leftEncoder);
     rWheelPos_pub.publish(rightEncoder);
-
-    currentTime = ros::Time::now();
-
-    leftEncoderVelocity = (leftEncoder.data - lastLeftEncoder)/
-            ((currentTime.toSec() - lastTime.toSec())*outputticksPerRad);
-    rightEncoderVelocity = (rightEncoder.data - lastRightEncoder)/
-            ((currentTime.toSec() - lastTime.toSec())*outputticksPerRad);
-
-    lastTime = currentTime;
-    lastLeftEncoder = leftEncoder.data;
-    lastRightEncoder = rightEncoder.data;
 
     ros::spinOnce();
     loop_rate.sleep();
@@ -78,53 +65,22 @@ int main(int argc, char **argv)
 }
 
 void setFan_callback(const std_msgs::Float32 msg){
-    volatile float data = msg.data;
-    if (data > 1.5) {
-        data = 1.5;
-    } else if (data < -1.5){
-        data = -1.5;
-    }
-    rc_send_esc_pulse_normalized(FAN, data);
+
+    rc_send_esc_pulse_normalized(FAN, msg.data);
 }
 void setServo_callback(const std_msgs::Float32 msg){
-    volatile float data = msg.data;
-    if (data > 1) {
-        data = -0.1;
-    } else if (data < -0.1){
-        data = -0.1;
-    }
-    rc_send_servo_pulse_normalized(SERVO, data);
+
+    rc_send_servo_pulse_normalized(SERVO, msg.data);
 }
 
 void setLeftWheel_callback(const std_msgs::Float32 msg){ //msg in m/s
 
-    rc_set_motor(LEFTMOTOR, calculateP(leftEncoderVelocity, msg.data/wheelRadius));
+    rc_set_motor(LEFTMOTOR, -msg.data);
 
 }
 void setRightWheel_callback(const std_msgs::Float32 msg){ //msg in m/s
 
-    rc_set_motor(RIGHTMOTOR, calculateP(rightEncoderVelocity, msg.data/wheelRadius));
+    rc_set_motor(RIGHTMOTOR, -msg.data);
 
 }
 
-float calculateP(float input, float setpoint){
-    return kP * (setpoint - input);
-}
-
-float calculatePID(ros::Duration timeChange, float input , float setpoint, float lastInput) {
-
-    volatile float timeDiff = timeChange.toSec();
-
-    volatile float error = setpoint - input;
-
-    //Calculate P
-    P = error * kP;
-
-    //Calculate I
-    I = I + (error * kI * timeDiff);
-
-    //Calculate D
-    D = (lastInput - input) * kD / timeDiff;
-
-    return P + I + D;
-}
