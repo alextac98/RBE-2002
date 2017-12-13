@@ -1,1 +1,1 @@
-ssh root@192.168.7.2 "date --set \"$(date)\""
+ssh root@10.42.0.63 "date --set \"$(date)\""

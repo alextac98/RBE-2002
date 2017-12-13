@@ -1,0 +1,5 @@
+<?xml version="1.0" ?>
+<robot name="turtlebotmini" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find turtlebotmini)/urdf/turtlebotmini.gazebo.xarco" />
+  <xacro:include filename="$(find turtlebotmini)/urdf/turtlebotmini_cad.urdf" />
+</robot>

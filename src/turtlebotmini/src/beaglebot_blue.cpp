@@ -75,12 +75,12 @@ void setServo_callback(const std_msgs::Float32 msg){
 
 void setLeftWheel_callback(const std_msgs::Float32 msg){ //msg in m/s
 
-    rc_set_motor(LEFTMOTOR, -msg.data);
+    rc_set_motor(LEFTMOTOR, -msg.data/0.789);
 
 }
 void setRightWheel_callback(const std_msgs::Float32 msg){ //msg in m/s
 
-    rc_set_motor(RIGHTMOTOR, -msg.data);
+    rc_set_motor(RIGHTMOTOR, -msg.data/0.789);
 
 }
 
