@@ -17,8 +17,8 @@
 const float wheelDiameter = 0.07; //in meters
 const float wheelRadius = wheelDiameter/2;
 
-float nowTime = 0;
-float lastTime = 0;
+double nowTime = 0;
+double lastTime = 0;
 
 //PID constants
 float kP;
@@ -28,16 +28,14 @@ float kF;
 
 float leftError = 0;
 float leftIntegral = 0;
-float leftTime;
+double leftTime;
 
 float rightError = 0;
 float rightIntegral = 0;
-float rightTime;
+double rightTime;
 
 //Encoder Variales
-const int gearRatio = 120;
-const float ticksPerRad = 1.90986093;
-const float outputticksPerRad = gearRatio * ticksPerRad;
+const float ticksPerMeter = 6548;
 
 std_msgs::Int16 leftEncoder;
 std_msgs::Int16 rightEncoder;

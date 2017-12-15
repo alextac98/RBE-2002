@@ -62,23 +62,23 @@ int main(int argc, char **argv)
 
   ros::Rate loop_rate(50);
 
-  //lastTime = (float) ros::Time::now().toSec();
+  lastTime = ros::Time::now().toSec();
 
   while (ros::ok())
   {
     leftEncoder.data = rc_get_encoder_pos(LEFTENCODER);
     rightEncoder.data = -rc_get_encoder_pos(RIGHTENCODER);
 
-    nowTime = (float) ros::Time::now().toSec();
+    nowTime = ros::Time::now().toSec();
 
     lWheelPos_pub.publish(leftEncoder);
     rWheelPos_pub.publish(rightEncoder);
 
     leftEncoderVel.data = (lastLeftEncoder - leftEncoder.data)/
-                                (nowTime - lastTime);
+             ((nowTime - lastTime) * ticksPerMeter);
 
     rightEncoderVel.data = (lastRightEncoder - rightEncoder.data)/
-                                  (nowTime - lastTime);
+            ((nowTime - lastTime) * ticksPerMeter);
 
     lWheelVel_pub.publish(leftEncoderVel);
     rWheelVel_pub.publish(rightEncoderVel);
@@ -113,7 +113,7 @@ void setLeftWheel_callback(const std_msgs::Float32 msg){ //msg in m/s
 
     float encoderData = leftEncoderVel.data;
 
-    float timeNow = ros::Time::now().toSec();
+    double timeNow = ros::Time::now().toSec();
 
     //Calculate P
     float error = msg.data - encoderData;
@@ -138,7 +138,7 @@ void setRightWheel_callback(const std_msgs::Float32 msg){ //msg in m/s
 
     float encoderData = rightEncoderVel.data;
 
-    float timeNow = ros::Time::now().toSec();
+    double timeNow = ros::Time::now().toSec();
 
     //Calculate P
     float error = msg.data - encoderData;
