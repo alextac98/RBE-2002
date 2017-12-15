@@ -39,13 +39,13 @@ int main(int argc, char **argv)
   double _kp;  double _ki;
   double _kd;  double _kf;
 
-  nh.param<double>("kP", _kp, 1);
-  nh.param<double>("kI", _ki, 0);
-  nh.param<double>("kD", _kd, 0);
+  nh.param<double>("kP", _kp);
+  nh.param<double>("kI", _ki);
+  nh.param<double>("kD", _kd);
   nh.param<double>("kF", _kf, 1.267);
 
-  kP = (float) _kp;  kI = (float) _ki;
-  kD = (float) _kd;  kF = (float) _kf;
+  kP = _kp;  kI = _ki;
+  kD = _kd;  kF = _kf;
 
 //-----ROS Publishers and Subscribers------------------------------
   lMotor_sub = nh.subscribe("lmotor_cmd", 1, setLeftWheel_callback);
@@ -74,14 +74,18 @@ int main(int argc, char **argv)
     lWheelPos_pub.publish(leftEncoder);
     rWheelPos_pub.publish(rightEncoder);
 
-    leftEncoderVel.data = (lastLeftEncoder - leftEncoder.data)/
+    leftEncoderVel.data = -(lastLeftEncoder - leftEncoder.data)/
              ((nowTime - lastTime) * ticksPerMeter);
 
-    rightEncoderVel.data = (lastRightEncoder - rightEncoder.data)/
+    rightEncoderVel.data = -(lastRightEncoder - rightEncoder.data)/
             ((nowTime - lastTime) * ticksPerMeter);
 
-    lWheelVel_pub.publish(leftEncoderVel);
-    rWheelVel_pub.publish(rightEncoderVel);
+    //Super janky way of taking care of integer value wrap around
+    //"If you know the rules, you are allowed to break them" :-D
+    if (leftEncoderVel.data < 1 && rightEncoderVel.data < 1){
+        lWheelVel_pub.publish(leftEncoderVel);
+        rWheelVel_pub.publish(rightEncoderVel);
+    }
 
     lastTime = nowTime;
     lastLeftEncoder = leftEncoder.data;
@@ -111,12 +115,10 @@ void setServo_callback(const std_msgs::Float32 msg){
 
 void setLeftWheel_callback(const std_msgs::Float32 msg){ //msg in m/s
 
-    float encoderData = leftEncoderVel.data;
-
     double timeNow = ros::Time::now().toSec();
 
     //Calculate P
-    float error = msg.data - encoderData;
+    float error = msg.data - leftEncoderVel.data;
 
     //Calculate I
     float integral = leftIntegral + leftError*(timeNow - leftTime);
@@ -136,12 +138,10 @@ void setLeftWheel_callback(const std_msgs::Float32 msg){ //msg in m/s
 }
 void setRightWheel_callback(const std_msgs::Float32 msg){ //msg in m/s
 
-    float encoderData = rightEncoderVel.data;
-
     double timeNow = ros::Time::now().toSec();
 
     //Calculate P
-    float error = msg.data - encoderData;
+    float error = msg.data - rightEncoderVel.data;
 
     //Calculate I
     float integral = rightIntegral + rightError*(timeNow - rightTime);
