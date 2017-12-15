@@ -31,25 +31,61 @@ int main(int argc, char **argv)
   rc_enable_motors();
   rc_enable_servo_power_rail();
 
-  //ROS Publishers and Subscribers
+  rc_set_encoder_pos(1, 0);
+  rc_set_encoder_pos(4, 0);
+
+//-----Get PID Parameters------------------------------------------
+//nh.param<datatype>("name", [variabletobeset], defaultvalue);
+  double _kp;  double _ki;
+  double _kd;  double _kf;
+
+  nh.param<double>("kP", _kp, 1);
+  nh.param<double>("kI", _ki, 0);
+  nh.param<double>("kD", _kd, 0);
+  nh.param<double>("kF", _kf, 1.267);
+
+  kP = (float) _kp;  kI = (float) _ki;
+  kD = (float) _kd;  kF = (float) _kf;
+
+//-----ROS Publishers and Subscribers------------------------------
   lMotor_sub = nh.subscribe("lmotor_cmd", 1, setLeftWheel_callback);
   rMotor_sub = nh.subscribe("rmotor_cmd", 1, setRightWheel_callback);
 
   lWheelPos_pub = nh.advertise<std_msgs::Int16>("lwheel", 1);
   rWheelPos_pub = nh.advertise<std_msgs::Int16>("rwheel", 1);
 
+  lWheelVel_pub = nh.advertise<std_msgs::Float32>("lwheel_vel", 1);
+  rWheelVel_pub = nh.advertise<std_msgs::Float32>("rwheel_vel", 1);
+
   fan_sub = nh.subscribe("fanSpeed", 1, setFan_callback);
   servo_sub = nh.subscribe("fanAngle", 1, setServo_callback);
 
   ros::Rate loop_rate(50);
+
+  //lastTime = (float) ros::Time::now().toSec();
 
   while (ros::ok())
   {
     leftEncoder.data = rc_get_encoder_pos(LEFTENCODER);
     rightEncoder.data = -rc_get_encoder_pos(RIGHTENCODER);
 
+    nowTime = (float) ros::Time::now().toSec();
+
     lWheelPos_pub.publish(leftEncoder);
     rWheelPos_pub.publish(rightEncoder);
+
+    leftEncoderVel.data = (lastLeftEncoder - leftEncoder.data)/
+                                (nowTime - lastTime);
+
+    rightEncoderVel.data = (lastRightEncoder - rightEncoder.data)/
+                                  (nowTime - lastTime);
+
+    lWheelVel_pub.publish(leftEncoderVel);
+    rWheelVel_pub.publish(rightEncoderVel);
+
+    lastTime = nowTime;
+    lastLeftEncoder = leftEncoder.data;
+    lastRightEncoder = rightEncoder.data;
 
     ros::spinOnce();
     loop_rate.sleep();
@@ -75,12 +111,52 @@ void setServo_callback(const std_msgs::Float32 msg){
 
 void setLeftWheel_callback(const std_msgs::Float32 msg){ //msg in m/s
 
-    rc_set_motor(LEFTMOTOR, -msg.data/0.789);
+    float encoderData = leftEncoderVel.data;
+
+    float timeNow = ros::Time::now().toSec();
+
+    //Calculate P
+    float error = msg.data - encoderData;
+
+    //Calculate I
+    float integral = leftIntegral + leftError*(timeNow - leftTime);
+
+    //Calculate D
+    float derivative = (error - leftError)/(timeNow - leftTime);
+
+    //Calculate PID Output
+    float output = kP * error + kI * integral + kD * derivative + kF * msg.data;
+
+    rc_set_motor(LEFTMOTOR, -output);
+
+    leftTime = timeNow;
+    leftError = error;
+    leftIntegral = integral;
 
 }
 void setRightWheel_callback(const std_msgs::Float32 msg){ //msg in m/s
 
-    rc_set_motor(RIGHTMOTOR, -msg.data/0.789);
+    float encoderData = rightEncoderVel.data;
+
+    float timeNow = ros::Time::now().toSec();
+
+    //Calculate P
+    float error = msg.data - encoderData;
+
+    //Calculate I
+    float integral = rightIntegral + rightError*(timeNow - rightTime);
+
+    //Calculate D
+    float derivative = (error - rightError)/(timeNow - rightTime);
+
+    //Calculate PID output
+    float output = kP * error + kI * integral + kD * derivative + kF * msg.data;
+
+    rc_set_motor(RIGHTMOTOR, -output);
+
+    rightTime = timeNow;
+    rightError = error;
+    rightIntegral = integral;
 
 }
 

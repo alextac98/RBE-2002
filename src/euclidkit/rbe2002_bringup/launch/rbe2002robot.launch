@@ -2,11 +2,15 @@
 
     <rosparam param="ticks_meter">6548</rosparam>
 
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find minimapping)/urdf/turtlebotmini.urdf.xarco" />
+
     <node pkg="differential_drive" type="twist_to_motors.py" name="twist_to_motors" output="screen">
         <rosparam param="base_width">0.14</rosparam>
+        <remap from="twist" to="cmd_vel"/>
     </node>
 
     <node pkg="differential_drive" type="diff_tf.py" name="diff_to_tf">
+
     </node>
 
     <node pkg="tf" type="static_transform_publisher" name="base2lidar_broadcaster" args="0 0 0.25 0 0 0 base_link laser_frame 100" />
@@ -15,8 +19,7 @@
 
     <include file="$(find minimapping)/launch/nav.launch" />
 
-    <node name="joint_state_publisher" pkg="joint_state_publisher"
-        type="joint_state_publisher" />
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
 
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen"/>
 
