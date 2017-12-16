@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<launch>
+<param name="/use_sim_time" value="true" />
+<include file="$(find gazebo_ros)/launch/empty_world.launch" />
+<!--
+<include file="$(find gazebo_ros)/launch/empty_world.launch"/>
+  <arg name="world_name" value="$(find turtlebotmini)/simulation/empty.world"/>
+-->
+
+<param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebotmini)/urdf/turtlebotmini.urdf.xarco" />
+
+<!-- Load joint controller configurations from YAML file to parameter server -->
+<rosparam file="$(find turtlebotmini)/config/diff_drive_controller.yaml" command="load" ns="/robot1" />
+<node
+  name="joint_state_publisher"
+  pkg="joint_state_publisher"
+  type="joint_state_publisher" />
+<node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen"/>
+
+<!-- Load the URDF into the ROS Parameter Server -->
+<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" output="screen" args="-param robot_description -urdf -model turtlebotmini"/>
+
+<!-- load the controllers -->
+<node name="controller_spawner" pkg="controller_manager" type="spawner" output="screen" ns="/robot1" args="joint_state_controller diff_drive_controller"/>
+
+<node name="relay_cmd_vel" pkg="topic_tools" type="relay" output="screen" args="/cmd_vel /robot1/diff_drive_controller/cmd_vel" />
+<node name="relay_odom" pkg="topic_tools" type="relay" output="screen" args="/robot1/diff_drive_controller/odom /odom" />
+
+<node pkg="rqt_robot_steering" type="rqt_robot_steering" name="rqt_teleop">
+  <param name="default_topic" type="str" value="/cmd_vel" />
+  <param name="default_vx_max" type="double" value="0.8" />
+  <param name="default_vx_min" type="double" value="-0.8" />
+  <param name="default_vw_max" type="double" value="1.5" />
+  <param name="default_vw_min" type="double" value="-1.5" />
+</node>
+
+<!--
+<node pkg="tf" type="static_transform_publisher" name="footprint2base_broadcaster" args="0 0 0 1.5707963 0 0 base_footprint base_link 100" />
+-->
+<node pkg="tf" type="static_transform_publisher" name="base2lidar_broadcaster" args="0 0 0.5 0 0 0 hokuyo_link base_scan 100" />
+<!-- <node pkg="tf" type="static_transform_publisher" name="base2lidar_broadcaster" args="0 0 0.25 0 0 0 base_link hokuyo_link 100" /> -->
+
+<node name="rviz" pkg="rviz" type="rviz" args="-d $(find turtlebotmini)/rviz/turtlebotmini.rviz"/>
+
+</launch>
+
