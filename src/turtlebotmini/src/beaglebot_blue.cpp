@@ -38,14 +38,17 @@ int main(int argc, char **argv)
 //nh.param<datatype>("name", [variabletobeset], defaultvalue);
   double _kp;  double _ki;
   double _kd;  double _kf;
+  double _deadzone;
 
   nh.param<double>("kP", _kp);
   nh.param<double>("kI", _ki);
   nh.param<double>("kD", _kd);
   nh.param<double>("kF", _kf, 1.267);
+  nh.param<double>("deadzone", _kd);
 
   kP = _kp;  kI = _ki;
   kD = _kd;  kF = _kf;
+  deadzone = _deadzone;
 
 //-----ROS Publishers and Subscribers------------------------------
   lMotor_sub = nh.subscribe("lmotor_cmd", 1, setLeftWheel_callback);
@@ -115,10 +118,20 @@ void setServo_callback(const std_msgs::Float32 msg){
 
 void setLeftWheel_callback(const std_msgs::Float32 msg){ //msg in m/s
 
+    float input;
+    //Deadzone Calculations
+    if (msg.data < deadzone && msg.data > 0 ) {
+        input = deadzone;
+    } else if (msg.data > -deadzone && msg.data < 0) {
+        input = -deadzone;
+    } else {
+        input = msg.data;
+    }
+
     double timeNow = ros::Time::now().toSec();
 
     //Calculate P
-    float error = msg.data - leftEncoderVel.data;
+    float error = input - leftEncoderVel.data;
 
     //Calculate I
     float integral = leftIntegral + leftError*(timeNow - leftTime);
@@ -127,7 +140,7 @@ void setLeftWheel_callback(const std_msgs::Float32 msg){ //msg in m/s
     float derivative = (error - leftError)/(timeNow - leftTime);
 
     //Calculate PID Output
-    float output = kP * error + kI * integral + kD * derivative + kF * msg.data;
+    float output = kP * error + kI * integral + kD * derivative + kF * input;
 
     rc_set_motor(LEFTMOTOR, -output);
 
@@ -138,10 +151,20 @@ void setLeftWheel_callback(const std_msgs::Float32 msg){ //msg in m/s
 }
 void setRightWheel_callback(const std_msgs::Float32 msg){ //msg in m/s
 
+    float input;
+    //Deadzone Calculations
+    if (msg.data < deadzone && msg.data > 0 ) {
+        input = deadzone;
+    } else if (msg.data > -deadzone && msg.data < 0) {
+        input = -deadzone;
+    } else {
+        input = msg.data;
+    }
+
     double timeNow = ros::Time::now().toSec();
 
     //Calculate P
-    float error = msg.data - rightEncoderVel.data;
+    float error = input - rightEncoderVel.data;
 
     //Calculate I
     float integral = rightIntegral + rightError*(timeNow - rightTime);
@@ -150,7 +173,7 @@ void setRightWheel_callback(const std_msgs::Float32 msg){ //msg in m/s
     float derivative = (error - rightError)/(timeNow - rightTime);
 
     //Calculate PID output
-    float output = kP * error + kI * integral + kD * derivative + kF * msg.data;
+    float output = kP * error + kI * integral + kD * derivative + kF * input;
 
     rc_set_motor(RIGHTMOTOR, -output);
 

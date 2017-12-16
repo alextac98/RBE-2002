@@ -4,8 +4,9 @@
         <remap from="rmotor_cmd" to="rwheel_vtarget"/>
 
         <param name="kP" type="double" value="0.4"/>
-        <param name="kI" type="double" value="0.001"/>
+        <param name="kI" type="double" value="0.01"/>
         <param name="kD" type="double" value="0.1"/>
+        <param name="deadzone" type="double" value="0.25"/>
         <!--<param name="kF" type="float" value="1"/>-->
     </node>
 

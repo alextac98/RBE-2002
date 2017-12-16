@@ -17,6 +17,8 @@
 const float wheelDiameter = 0.07; //in meters
 const float wheelRadius = wheelDiameter/2;
 
+double deadzone = 0.05;
+
 double nowTime = 0;
 double lastTime = 0;
 
